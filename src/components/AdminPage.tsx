@@ -1,53 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ExtensionContext, ExtensionContextData } from '@looker/extension-sdk-react';
-
-// Define the interface for individual group mappings with role IDs
-interface GroupWithRoleId {
-  id: string;
-  looker_group_id?: string; // Made optional
-  looker_group_name: string;
-  name: string;
-  role_ids: string[];
-}
-
-// Define a more comprehensive interface for the full OIDC Config object
-interface OidcConfig {
-  alternate_email_login_allowed?: boolean;
-  audience?: string;
-  auth_requires_role?: boolean;
-  authorization_endpoint?: string;
-  default_new_user_groups?: any[]; // Using any[] for simplicity, could be more specific
-  default_new_user_roles?: any[]; // Using any[] for simplicity
-  enabled?: boolean;
-  groups?: any[]; // Using any[] for simplicity, as only groups_with_role_ids is primarily used
-  groups_attribute?: string;
-  identifier?: string;
-  issuer?: string;
-  modified_at?: string;
-  modified_by?: string;
-  new_user_migration_types?: string;
-  scopes?: string[];
-  set_roles_from_groups?: boolean;
-  test_slug?: string;
-  token_endpoint?: string;
-  user_attribute_map_email?: string;
-  user_attribute_map_first_name?: string;
-  user_attribute_map_last_name?: string;
-  user_attributes?: any[]; // Using any[] for simplicity
-  userinfo_endpoint?: string;
-  allow_normal_group_membership?: boolean;
-  allow_roles_from_normal_groups?: boolean;
-  allow_direct_roles?: boolean;
-  groups_with_role_ids?: GroupWithRoleId[];
-  user_attributes_with_ids?: any[]; // Using any[] for simplicity
-  url?: string;
-  can?: {
-    show?: boolean;
-    view_in_ui?: boolean;
-    test?: boolean;
-    update?: boolean;
-  };
-}
+import { GroupWithRoleId, OidcConfig } from '../types';
 
 /**
  * A simple Admin Page component displaying OIDC configuration metadata
@@ -106,7 +59,10 @@ const AdminPage: React.FC = () => {
   });
 
   const [showConfirmBanner, setShowConfirmBanner] = useState<boolean>(false);
-  const [proposedNewMapping, setProposedNewMapping] = useState<GroupWithRoleId | null>(null);
+  const [proposedNewMapping, setProposedNewMapping] = useState<GroupWithRoleId[] | null>(null);
+
+  const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');
+  const [bulkInput, setBulkInput] = useState<string>('');
 
   // Function to fetch OIDC configuration
   const getOidcConfig = async (): Promise<OidcConfig> => {
@@ -157,22 +113,84 @@ const AdminPage: React.FC = () => {
     }));
   };
 
+  // Helper function to parse bulk input
+  const parseBulkInput = (input: string): GroupWithRoleId[] => {
+    const lines = input.split('\n');
+    const parsedMappings: GroupWithRoleId[] = [];
+
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return; // Skip empty lines
+
+      // Expected format: looker_group_id (optional), looker_group_name (optional), name (required), role_ids (comma-separated, optional)
+      const parts = trimmedLine.split(',').map(part => part.trim());
+
+      // Basic validation: ensure 'name' part (index 2) is present
+      if (parts.length < 3 || !parts[2]) {
+        console.warn(`Skipping malformed line: "${trimmedLine}". Name is required (third comma-separated value).`);
+        return;
+      }
+
+      // Generate a more unique ID for each bulk-added row
+      const newId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+      const lookerGroupId = parts[0] || '';
+      // Default looker_group_name to 'name' if not provided
+      const lookerGroupName = parts[1] || parts[2] || '';
+      const name = parts[2];
+      // Role IDs: handle cases where it might be empty or contain multiple comma-separated IDs in the last part
+      const roleIds = parts.slice(3).flatMap(r => r.split(',').map(s => s.trim()).filter(s => s));
+
+      parsedMappings.push({
+        id: newId,
+        looker_group_id: lookerGroupId,
+        looker_group_name: lookerGroupName,
+        name: name,
+        role_ids: roleIds,
+      });
+    });
+
+    return parsedMappings;
+  };
+
   const handleAddRow = () => {
-    if (newRowData.name) { // Only 'name' is strictly required now
+    let mappingsToPropose: GroupWithRoleId[] = [];
+
+    if (activeTab === 'single') {
+      if (!newRowData.name) {
+        console.warn("Name is required to add a new row.");
+        return;
+      }
       const newId = Date.now().toString(); // Simple unique ID
-      const newMapping: GroupWithRoleId = {
+      const singleMapping: GroupWithRoleId = {
         id: newId,
         looker_group_id: newRowData.looker_group_id || '', // Optional
         looker_group_name: newRowData.looker_group_name || newRowData.name || '',
         name: newRowData.name,
         role_ids: newRowData.role_ids || [],
       };
-      setProposedNewMapping(newMapping);
-      setShowConfirmBanner(true);
-    } else {
-      console.warn("Name is required to add a new row.");
+      mappingsToPropose = [singleMapping];
+    } else { // activeTab === 'bulk'
+      if (!bulkInput.trim()) {
+        console.warn("Bulk input cannot be empty.");
+        return;
+      }
+      try {
+        mappingsToPropose = parseBulkInput(bulkInput);
+        if (mappingsToPropose.length === 0) {
+          console.warn("No valid mappings parsed from bulk input. Please check the format.");
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing bulk input:", error);
+        console.warn("An error occurred while parsing bulk input. Please check the format.");
+        return;
+      }
     }
+
+    setProposedNewMapping(mappingsToPropose);
+    setShowConfirmBanner(true);
   };
+
 
 //   const loadTest = () => {
 //     const data = []
@@ -189,12 +207,21 @@ const AdminPage: React.FC = () => {
 
   const confirmAddRow = async () => {
     if (proposedNewMapping) {
-      const updateMappings = [...mappings, proposedNewMapping]
-      setMappings(updateMappings);
-    //   const load = loadTest()
-      // Clear form
+      const updatedMappings = [...mappings, ...proposedNewMapping];
+      setMappings(updatedMappings);
+
+      // Clear forms after successful addition
       setNewRowData({ id: '', looker_group_id: '', looker_group_name: '', name: '', role_ids: [] });
-      await core40SDK.ok(core40SDK.update_oidc_config({"groups_with_role_ids": updateMappings}))
+      setBulkInput('');
+
+      // Persist changes to Looker's OIDC config
+      try {
+        await core40SDK.ok(core40SDK.update_oidc_config({ "groups_with_role_ids": updatedMappings }));
+        console.log("OIDC config updated successfully!");
+      } catch (error) {
+        console.error("Error updating OIDC config:", error);
+        // Optionally, revert mappings or show an error message to the user
+      }
     }
     setShowConfirmBanner(false);
     setProposedNewMapping(null);
@@ -354,68 +381,110 @@ const AdminPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="add-row-form">
-                <h2>Add New Mapping</h2>
-                <div className="form-group">
-                <label htmlFor="looker_group_id">Looker Group ID (Optional):</label>
-                <input
-                    type="text"
-                    id="looker_group_id"
-                    name="looker_group_id"
-                    value={newRowData.looker_group_id || ''}
-                    onChange={handleNewRowChange}
-                    placeholder="e.g., 6"
-                />
-                </div>
-                <div className="form-group">
-                <label htmlFor="looker_group_name">Looker Group Name (Optional):</label>
-                <input
-                    type="text"
-                    id="looker_group_name"
-                    name="looker_group_name"
-                    value={newRowData.looker_group_name || ''}
-                    onChange={handleNewRowChange}
-                    placeholder="e.g., Test Group Name"
-                />
-                </div>
-                <div className="form-group">
-                <label htmlFor="name">Name:</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={newRowData.name || ''}
-                    onChange={handleNewRowChange}
-                    placeholder="e.g., Custom Name"
-                />
-                </div>
-                <div className="form-group">
-                <label htmlFor="role_ids">Role IDs (comma-separated):</label>
-                <input
-                    type="text"
-                    id="role_ids"
-                    name="role_ids"
-                    value={newRowData.role_ids ? newRowData.role_ids.join(', ') : ''}
-                    onChange={handleNewRowChange}
-                    placeholder="e.g., 2, 5"
-                />
-                </div>
-                <button onClick={handleAddRow}>Add Row</button>
-            </div>
+        <div className="add-row-form">
+        <h2>Add New Mapping</h2>
+        <div className="tab-buttons">
+          <button
+            className={activeTab === 'single' ? 'tab-button active' : 'tab-button'}
+            onClick={() => setActiveTab('single')}
+          >
+            Add Single Row
+          </button>
+          <button
+            className={activeTab === 'bulk' ? 'tab-button active' : 'tab-button'}
+            onClick={() => setActiveTab('bulk')}
+          >
+            Bulk Add Multiple Rows
+          </button>
         </div>
+
+        {activeTab === 'single' && (
+          <div className="single-row-form-content">
+            <div className="form-group">
+              <label htmlFor="looker_group_id">Looker Group ID (Optional):</label>
+              <input
+                type="text"
+                id="looker_group_id"
+                name="looker_group_id"
+                value={newRowData.looker_group_id || ''}
+                onChange={handleNewRowChange}
+                placeholder="e.g., 6"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="looker_group_name">Looker Group Name (Optional):</label>
+              <input
+                type="text"
+                id="looker_group_name"
+                name="looker_group_name"
+                value={newRowData.looker_group_name || ''}
+                onChange={handleNewRowChange}
+                placeholder="e.g., Test Group Name"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="name">Name:</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={newRowData.name || ''}
+                onChange={handleNewRowChange}
+                placeholder="e.g., Custom Name"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="role_ids">Role IDs (comma-separated):</label>
+              <input
+                type="text"
+                id="role_ids"
+                name="role_ids"
+                value={newRowData.role_ids ? newRowData.role_ids.join(', ') : ''}
+                onChange={handleNewRowChange}
+                placeholder="e.g., 2, 5"
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'bulk' && (
+          <div className="bulk-add-form-content">
+            <div className="form-group">
+              <label htmlFor="bulk_mappings">Bulk Mappings:</label>
+              <textarea
+                id="bulk_mappings"
+                name="bulk_mappings"
+                rows={10}
+                value={bulkInput}
+                onChange={(e) => setBulkInput(e.target.value)}
+                placeholder={`Enter each mapping on a new line. For each line, provide comma-separated values in this order:\nlooker_group_id (optional), looker_group_name (optional), name (required), role_ids (comma-separated, optional)\n\nExample:\n6,Test Group,My Custom Name,2,5\n,,Another Group,1`}
+              ></textarea>
+              <p className="helper-text">
+                <strong>Format:</strong> <code>looker_group_id</code> (optional), <code>looker_group_name</code> (optional), <code>name</code> (required), <code>role_ids</code> (comma-separated, optional)
+                <br />
+                Example: <code>6,Test Group,My Custom Name,2,5</code>
+                <br />
+                Example (optional fields empty): <code>,,Another Group,1</code>
+              </p>
+            </div>
+          </div>
+        )}
+
+        <button onClick={handleAddRow}>Add Row</button>
+      </div>
       </div>
 
-      {showConfirmBanner && (
+     {showConfirmBanner && proposedNewMapping && (
         <>
           <div className="overlay"></div>
           <div className="confirmation-banner">
             <h3>Confirm Data Modification</h3>
             <p>
-              You are about to add a new row to the table.
+              You are about to add <strong>{proposedNewMapping.length}</strong> new row(s) to the table.
               <br />
               Current number of rows: <strong>{mappings.length}</strong>
               <br />
-              Proposed new total: <strong>{mappings.length + 1}</strong>
+              Proposed new total: <strong>{mappings.length + proposedNewMapping.length}</strong>
             </p>
             <p>Do you want to confirm this change?</p>
             <div className="confirmation-buttons">
@@ -425,6 +494,7 @@ const AdminPage: React.FC = () => {
           </div>
         </>
       )}
+    </div>
     </div>
   );
 };

@@ -100,3 +100,99 @@ export interface CaApiResponse {
   data: any[];
   code_interpreter: any[];
 }
+
+/**
+ * Defines the structure for individual group mappings within an OIDC configuration,
+ * including a role ID.
+ *
+ * @property {string} id - A unique identifier for the group mapping.
+ * @property {string} [looker_group_id] - An optional ID corresponding to a Looker group.
+ * @property {string} looker_group_name - The name of the Looker group.
+ * @property {string} name - The name of the group.
+ * @property {string[]} role_ids - An array of role IDs associated with this group.
+ */
+export interface GroupWithRoleId {
+  id: string;
+  looker_group_id?: string; // Made optional
+  looker_group_name: string;
+  name: string;
+  role_ids: string[];
+}
+
+/**
+ * Defines a comprehensive interface for the OpenID Connect (OIDC) configuration object.
+ * This type encompasses various settings and properties related to OIDC authentication
+ * and user provisioning within a system.
+ *
+ * @property {boolean} [alternate_email_login_allowed] - Indicates if logging in with an alternate email is allowed.
+ * @property {string} [audience] - The audience for the OIDC client.
+ * @property {boolean} [auth_requires_role] - Specifies if authentication requires a role to be present.
+ * @property {string} [authorization_endpoint] - The OIDC authorization endpoint URL.
+ * @property {any[]} [default_new_user_groups] - An array of groups to which new users are added by default.
+ * @property {any[]} [default_new_user_roles] - An array of roles assigned to new users by default.
+ * @property {boolean} [enabled] - Indicates if the OIDC configuration is enabled.
+ * @property {any[]} [groups] - An array of groups configured for OIDC (primarily superseded by `groups_with_role_ids`).
+ * @property {string} [groups_attribute] - The attribute in the OIDC response that contains group information.
+ * @property {string} [identifier] - The client identifier for the OIDC application.
+ * @property {string} [issuer] - The OIDC issuer URL.
+ * @property {string} [modified_at] - Timestamp of the last modification.
+ * @property {string} [modified_by] - The user who last modified the configuration.
+ * @property {string} [new_user_migration_types] - Specifies migration types for new users.
+ * @property {string[]} [scopes] - An array of OIDC scopes requested.
+ * @property {boolean} [set_roles_from_groups] - Indicates if user roles should be set based on OIDC groups.
+ * @property {string} [test_slug] - A slug used for testing the OIDC configuration.
+ * @property {string} [token_endpoint] - The OIDC token endpoint URL.
+ * @property {string} [user_attribute_map_email] - The user attribute map for email.
+ * @property {string} [user_attribute_map_first_name] - The user attribute map for first name.
+ * @property {string} [user_attribute_map_last_name] - The user attribute map for last name.
+ * @property {any[]} [user_attributes] - An array of user attributes configured for OIDC.
+ * @property {string} [userinfo_endpoint] - The OIDC user info endpoint URL.
+ * @property {boolean} [allow_normal_group_membership] - Indicates if normal group membership is allowed.
+ * @property {boolean} [allow_roles_from_normal_groups] - Indicates if roles can be derived from normal groups.
+ * @property {boolean} [allow_direct_roles] - Indicates if direct roles can be assigned.
+ * @property {GroupWithRoleId[]} [groups_with_role_ids] - An array of group mappings, each including role IDs.
+ * @property {any[]} [user_attributes_with_ids] - An array of user attributes with associated IDs.
+ * @property {string} [url] - The URL associated with the OIDC configuration.
+ * @property {object} [can] - An object defining user permissions related to this configuration.
+ * @property {boolean} [can.show] - Permission to show the configuration.
+ * @property {boolean} [can.view_in_ui] - Permission to view the configuration in the UI.
+ * @property {boolean} [can.test] - Permission to test the configuration.
+ * @property {boolean} [can.update] - Permission to update the configuration.
+ */
+export interface OidcConfig {
+  alternate_email_login_allowed?: boolean;
+  audience?: string;
+  auth_requires_role?: boolean;
+  authorization_endpoint?: string;
+  default_new_user_groups?: any[]; // Using any[] for simplicity, could be more specific
+  default_new_user_roles?: any[]; // Using any[] for simplicity
+  enabled?: boolean;
+  groups?: any[]; // Using any[] for simplicity, as only groups_with_role_ids is primarily used
+  groups_attribute?: string;
+  identifier?: string;
+  issuer?: string;
+  modified_at?: string;
+  modified_by?: string;
+  new_user_migration_types?: string;
+  scopes?: string[];
+  set_roles_from_groups?: boolean;
+  test_slug?: string;
+  token_endpoint?: string;
+  user_attribute_map_email?: string;
+  user_attribute_map_first_name?: string;
+  user_attribute_map_last_name?: string;
+  user_attributes?: any[]; // Using any[] for simplicity
+  userinfo_endpoint?: string;
+  allow_normal_group_membership?: boolean;
+  allow_roles_from_normal_groups?: boolean;
+  allow_direct_roles?: boolean;
+  groups_with_role_ids?: GroupWithRoleId[];
+  user_attributes_with_ids?: any[]; // Using any[] for simplicity
+  url?: string;
+  can?: {
+    show?: boolean;
+    view_in_ui?: boolean;
+    test?: boolean;
+    update?: boolean;
+  };
+}
