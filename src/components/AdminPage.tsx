@@ -160,7 +160,7 @@ const AdminPage: React.FC = () => {
         console.warn("Name is required to add a new row.");
         return;
       }
-      const newId = Date.now().toString(); // Simple unique ID
+      const newId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
       const singleMapping: GroupWithRoleId = {
         id: newId,
         looker_group_id: newRowData.looker_group_id || '', // Optional
