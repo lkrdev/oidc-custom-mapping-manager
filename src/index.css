@@ -26,6 +26,45 @@ body {
   box-sizing: border-box;
 }
 
+/* Update the header to use flexbox for easy alignment */
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap; /* Allows button to wrap on smaller screens */
+  gap: 1rem;
+}
+
+.header-content {
+  flex-grow: 1;
+}
+
+/* Styling for the new download button */
+.download-config-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  padding: 10px 15px;
+  background-color: #007bff; /* A nice blue, change as needed */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.download-config-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Ensure the SVG icon inside the button is styled correctly */
+.download-config-button svg {
+  color: white; /* Make sure the icon is visible against the button background */
+}
+
 .admin-page-header h1 {
   font-size: 2.5em;
   color: #2c3e50;
@@ -212,36 +251,6 @@ body {
   padding-bottom: 10px;
 }
 
-.tab-buttons {
-  display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 10px 15px;
-  border: none;
-  background-color: #e0e0e0;
-  color: #555;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: 600;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.tab-button:not(:last-child) {
-  margin-right: 5px;
-}
-
-.tab-button.active {
-  background-color: #3498db;
-  color: white;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .single-row-form-content,
 .bulk-add-form-content {
   padding-top: 10px;
@@ -288,8 +297,8 @@ body {
   font-family: monospace;
 }
 
-.add-row-form button {
-  background-color: #28a745;
+.add-row-form button{
+  /* background-color: #28a745; */
   color: white;
   border: none;
   padding: 12px 25px;
@@ -304,6 +313,36 @@ body {
 
 .add-row-form button:hover {
   background-color: #218838;
+}
+
+.tab-buttons {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  background-color: #e0e0e0;
+  color: #555;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-button:not(:last-child) {
+  margin-right: 5px;
+}
+
+.tab-button.active {
+  background-color: #3498db;
+  color: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .confirmation-banner {
@@ -374,6 +413,89 @@ body {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
+}
+
+/* General styling for icon buttons in the table */
+.action-cell {
+  display: flex;
+  gap: 8px; /* Adds space between the icons */
+  align-items: center;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%; /* Makes the hover effect circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  color: #555; /* Default icon color */
+}
+
+/* Hover effect for all icon buttons */
+.icon-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Active style for the Edit icon (Green) */
+.icon-button.active-edit {
+  color: #2E8B57; /* A nice shade of green */
+  background-color: #e9f3ec;
+}
+
+/* Active style for the Delete icon (Red) */
+.icon-button.active-delete {
+  color: #DC143C; /* A nice shade of red */
+  background-color: #fce8ec;
+}
+
+/* Optional: Style for the "Cancel Edit" button to make it distinct */
+.cancel-edit-button {
+  background-color: #6c757d;
+  margin-left: 10px;
+}
+
+/* Styling for the new error modal */
+.error-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.error-modal h3 {
+  margin-top: 0;
+  color: #c0392b; /* A strong red for error titles */
+}
+
+.error-message {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+/* Styles for the <pre> tag to format error details nicely */
+.error-details {
+  background-color: #f9f2f4; /* Light reddish background */
+  color: #c7254e; /* Dark red text */
+  border: 1px solid #e5d0d6;
+  border-radius: 4px;
+  padding: 10px;
+  text-align: left;
+  white-space: pre-wrap; /* Ensures long messages wrap */
+  word-break: break-word;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
 }
 
 /* Responsive adjustments */
