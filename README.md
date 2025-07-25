@@ -44,13 +44,7 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
     cd oidc-custom-group-manager
     ```
 
-3.  Ensure All the Appropriate Environment Variables are set. Copy `.env.example` file and save as `.env`.
-    *While this extension primarily interacts with the Looker API, you might need `RESTFUL_SERVICE` if you introduce a backend for additional functionality or proxies.*
-    ```
-    RESTFUL_SERVICE=<Optional: URL for a backend service if needed>
-    ```
-
-4.  Install the dependencies with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+3.  Install the dependencies with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
     ```bash
     npm install
@@ -62,7 +56,7 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
     npm install --legacy-peer-deps
     ```
 
-5.  Start the development server.
+4.  Start the development server.
 
     ```bash
     npm run develop
@@ -70,7 +64,7 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
 
     Great! Your extension is now running and serving the JavaScript at `https://localhost:3000/bundle.js`.
 
-6.  Now log in to Looker and create a new project.
+5.  Now log in to Looker and create a new project.
 
     This is found under **Develop** => **Manage LookML Projects** => **New LookML Project**.
 
@@ -99,25 +93,25 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
             local_storage: yes
             use_form_submit: no
             new_window: yes
-            core_api_methods: ["oidc_config","update_oidc_config"]
+            core_api_methods: ["oidc_config","update_oidc_config","create_oidc_test_config"]
             external_api_urls: ["http://localhost:5000","http://localhost:3000"]
           }
         }
         ```
 
-7.  Create a `model` LookML file in your project. The name doesn't matter. The model and connection won't be used, and in the future this step may be eliminated.
+6.  Create a `model` LookML file in your project. The name doesn't matter. The model and connection won't be used, and in the future this step may be eliminated.
 
     -   Add a connection in this model. It can be any connection, it doesn't matter which.
     -   [Configure the model you created](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) so that it has access to some connection.
 
-8.  Connect your new project to Git. You can do this multiple ways:
+7.  Connect your new project to Git. You can do this multiple ways:
 
     -   Create a new repository on GitHub or a similar service, and follow the instructions to [connect your project to Git](https://docs.looker.com/data-modeling/getting-started/setting-up-git-connection)
     -   A simpler but less powerful approach is to set up git with the "Bare" repository option which does not require connecting to an external Git Service.
 
-9.  Commit your changes and deploy your them to production through the Project UI.
+8.  Commit your changes and deploy your them to production through the Project UI.
 
-10. Reload the page and click the `Browse` dropdown menu. You should see your extension in the list.
+9. Reload the page and click the `Browse` dropdown menu. You should see your extension in the list.
     -   The extension will load the JavaScript from the `url` provided in the `application` definition. By default, this is `https://localhost:3000/bundle.js`. If you change the port your server runs on in the `package.json`, you will need to also update it in the `manifest.lkml`.
 
     - Refreshing the extension page will bring in any new code changes from the extension template, although some changes will hot reload.
