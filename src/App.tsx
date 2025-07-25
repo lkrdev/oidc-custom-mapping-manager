@@ -28,7 +28,7 @@ import React from 'react'
 import { ExtensionProvider } from '@looker/extension-sdk-react'
 import { hot } from 'react-hot-loader/root'
 import './index.css' // Import the CSS file
-import AdminPage from './components/AdminPage'
+import AdminPage from './components/AdminPage/AdminPage'
 
 export const App = hot(() => {
 
