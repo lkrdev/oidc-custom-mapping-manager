@@ -3,12 +3,26 @@
 This is an extension for Looker designed to simplify the management of OpenID Connect (OIDC) custom groups directly within your Looker instance. It provides a user-friendly interface to configure and update your OIDC settings, streamlining the process of syncing user groups from your OIDC provider to Looker.
 
 ## Description
-
+![homepage](images/oidc-homepage.png)
 The OIDC Custom Group Manager extension allows Looker administrators to:
 
-1.  **View OIDC Configuration:** Easily inspect the current OIDC setup within Looker.
-2.  **Update OIDC Settings:** Modify OIDC configuration parameters, including custom group mappings.
-3.  **Streamlined Group Management:** Facilitate the synchronization of user groups from your OIDC provider to Looker, enabling granular access control.
+1.  **View OIDC Configuration:** Easily inspect the current OIDC setup within Looker
+   ![config](images/oidc-config.png) <br />
+   including a paginated performant view of existing mappings <br />
+   ![mappings](images/oidc-mappings.png) <br />
+   and export backups. <br />
+   ![backup](images/oidc-backup.png)
+3.  **Update OIDC Settings:** Modify OIDC configuration parameters, including custom group mappings. Individually
+   ![modify](images/oidc-modify-mapping.png) <br />
+   or in bulk <br />
+   ![bulk](images/oidc-bulk-add-mappings.png) <br />
+4.  **Streamlined Group Management:** Facilitate the synchronization of user groups from your OIDC provider to Looker, enabling granular access control.
+5.  Confirmation dialogs to prevent unwanted actions
+   ![dialog](images/oidc-confirmation-dialogs.png) <br />
+   config tests run automatically before each update <br />
+   ![test](images/oidc-test.png) <br />
+   and error states capture any failed tests and aborted changes. <br />
+   ![errors](images/oidc-error-handling.png) <br />
 
 ### Technologies Used
 
