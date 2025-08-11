@@ -3,7 +3,7 @@ project_name: "admin-extensions"
 
 application: oidc-manager {
   label: "OIDC Manager"
-  file: "bundle.js"
+  file: "https://cdn.lkr.dev/apps/oidc-group-manager/latest/bundle.js"
   # url: "https://localhost:3000/bundle.js"
   mount_points: {
     dashboard_vis: yes

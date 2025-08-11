@@ -135,7 +135,7 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
 
 The process above requires your local development server to be running to load the extension code. To allow other people to use the extension, a production build of the extension needs to be run.
 
-**Note:** A production-ready `bundle.js` is already included in the `dist` directory of this repository, so you generally don't need to build it yourself for deployment.
+**Note:** A production-ready `bundle.js` is already included on our cdn `https://cdn.lkr.dev/apps/oidc-group-manager/latest/bundle.js`, so you generally don't need to build it yourself for deployment. To use the pre-built production file add this (`url: https://cdn.lkr.dev/apps/oidc-group-manager/latest/bundle.js`) in your `manifest.lkml` file and ensure that the `file` line is commented out
 
 1.  If you want to build the extension yourself, run the command `npm run build` in your extension project directory on your development machine.
 2.  Drag and drop the generated JavaScript file (`bundle.js`) contained in the `dist` directory into the Looker project interface.
