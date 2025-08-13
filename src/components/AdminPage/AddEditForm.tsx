@@ -50,15 +50,26 @@ const AddEditForm: React.FC = () => {
             </div>
           )}
           <div className="form-group">
-            <label htmlFor="looker_group_id">Looker Group ID (Optional):</label>
+            <label htmlFor="name">OpenID Connect Group Name:</label>
             <input
               type="text"
-              id="looker_group_id"
-              name="looker_group_id"
-              value={formData.looker_group_id || ''}
+              id="name"
+              name="name"
+              value={formData.name || ''}
               onChange={handleFormInputChange}
-              placeholder="e.g., 6"
-              disabled={!!currentRowForAction}
+              placeholder="e.g., OpenID Connect Group Name"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="role_ids">Role IDs (comma-separated):</label>
+            <input
+              type="text"
+              id="role_ids"
+              name="role_ids"
+              value={formData.role_ids || ''}
+              onChange={handleFormInputChange}
+              placeholder="e.g., 2, 5"
             />
           </div>
           <div className="form-group">
@@ -70,29 +81,6 @@ const AddEditForm: React.FC = () => {
               value={formData.looker_group_name || ''}
               onChange={handleFormInputChange}
               placeholder="e.g., Test Group Name"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name || ''}
-              onChange={handleFormInputChange}
-              placeholder="e.g., Custom Name"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="role_ids">Role IDs (comma-separated):</label>
-            <input
-              type="text"
-              id="role_ids"
-              name="role_ids"
-              value={Array.isArray(formData.role_ids) ? formData.role_ids.join(', ') : ''}
-              onChange={handleFormInputChange}
-              placeholder="e.g., 2, 5"
             />
           </div>
         </div>
@@ -111,7 +99,7 @@ const AddEditForm: React.FC = () => {
               placeholder={`Enter each mapping on a new line. For each line, provide comma-separated values in this order:\nlooker_group_id (optional), looker_group_name (optional), name (required), role_ids (comma-separated, optional)\n\nExample:\n6,Test Group,My Custom Name,2,5\n,,Another Group,1`}
             ></textarea>
             <p className="helper-text">
-              <strong>Format:</strong> <code>looker_group_id</code> (optional), <code>looker_group_name</code> (optional), <code>name</code> (required), <code>role_ids</code> (comma-separated, optional)
+              <strong>Format:</strong> <code>looker_group_id</code> (optional), <code>looker_group_name</code> (optional), <code>openid_connection_group_name</code> (required), <code>role_ids</code> (comma-separated, optional)
               <br />
               Example: <code>6,Test Group,My Custom Name,2,5</code>
               <br />

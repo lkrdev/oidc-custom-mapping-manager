@@ -116,7 +116,7 @@ export interface GroupWithRoleId {
   looker_group_id?: string; // Made optional
   looker_group_name: string;
   name: string;
-  role_ids: string[];
+  role_ids: string | string[];
 }
 
 /**

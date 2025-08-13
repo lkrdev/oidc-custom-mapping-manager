@@ -94,16 +94,14 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
 
         application: oidc-manager {
           label: "OIDC Manager"
-          # For local development, use url:
-          url: "https://localhost:3000/bundle.js"
-          # For production deployment, use file:
-          # file: "bundle.js"
+          file: "bundle.js"
           mount_points: {
             dashboard_vis: yes
             dashboard_tile: yes
             standalone: yes
           }
           entitlements: {
+            use_downloads: yes
             local_storage: yes
             use_form_submit: no
             new_window: yes
@@ -146,18 +144,19 @@ The process above requires your local development server to be running to load t
 
     application: oidc-manager {
       label: "OIDC Manager"
-      file: "bundle.js" # Changed from url to file for production
+      file: "bundle.js"
       mount_points: {
         dashboard_vis: yes
         dashboard_tile: yes
         standalone: yes
       }
       entitlements: {
+        use_downloads: yes
         local_storage: yes
         use_form_submit: no
         new_window: yes
-        core_api_methods: ["oidc_config","update_oidc_config"]
-        external_api_urls: ["http://localhost:5000","http://localhost:3000"] # Keep if a backend is used, otherwise can be removed.
+        core_api_methods: ["oidc_config","update_oidc_config","create_oidc_test_config"]
+        external_api_urls: ["http://localhost:5000","http://localhost:3000"]
       }
     }
     ```

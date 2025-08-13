@@ -186,7 +186,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCurrentRowForAction(row);
     setFormData({
       ...row,
-      role_ids: Array.isArray(row.role_ids) ? row.role_ids : [],
+      role_ids: Array.isArray(row.role_ids) ? row.role_ids.join(', ') : '',
     });
     setActiveTab('single');
     addEditFormRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -219,7 +219,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               ...formData,
               id: Date.now().toString() + "-" + formData.name,
               looker_group_name: formData.looker_group_name || formData.name,
-              role_ids: formData.role_ids || [],
+              role_ids: typeof formData.role_ids === 'string' ? formData.role_ids.split(',').map(s => s.trim()).filter(Boolean) : [],
             } as GroupWithRoleId]
           : parseBulkInput(bulkInput);
 
@@ -234,7 +234,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       case 'update':
         if (!currentRowForAction) return;
         updatedMappings = mappings.map(m =>
-          m.id === currentRowForAction.id ? { ...m, ...formData } as GroupWithRoleId : m
+          m.id === currentRowForAction.id ? { ...m, ...formData, role_ids: typeof formData.role_ids === 'string' ? formData.role_ids.split(',').map(s => s.trim()).filter(Boolean) : m.role_ids } as GroupWithRoleId : m
         );
         break;
 
@@ -261,7 +261,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'role_ids' ? value.split(',').map(s => s.trim()).filter(Boolean) : value,
+      [name]: value,
     }));
   };
 
