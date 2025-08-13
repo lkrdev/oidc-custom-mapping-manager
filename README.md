@@ -94,7 +94,7 @@ This section outlines the steps to set up and deploy the OIDC Custom Group Manag
 
         application: oidc-manager {
           label: "OIDC Manager"
-          file: "bundle.js"
+          url: "https://localhost:3000"
           mount_points: {
             dashboard_vis: yes
             dashboard_tile: yes
