@@ -1,6 +1,6 @@
 
 
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from 'react';
 import { ExtensionContext, ExtensionContextData } from '@looker/extension-sdk-react';
 import { LookerSDKError } from '@looker/sdk-rtl';
 import { OidcConfig, GroupWithRoleId } from '../types';
@@ -136,7 +136,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (config && Array.isArray(config.groups_with_role_ids)) {
         const mappingsWithIds = config.groups_with_role_ids.map((m, index) => ({
           ...m,
-          id: m.id || `${Date.now()}-${index}`,
+          id: m.id || '',
         }));
         setMappings(mappingsWithIds as GroupWithRoleId[]);
       } else {
@@ -145,7 +145,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     })();
   }, [core40SDK]);
 
-  const updateOidcConfigMappings = async (updatedMappings: GroupWithRoleId[]) => {
+  const updateOidcConfigMappings = useCallback(async (updatedMappings: GroupWithRoleId[]) => {
     try {
         const { groups_with_role_ids, ...newOidcConfigTest } = oidcConfigData!
         setOidcTestState('Running Test')
@@ -172,8 +172,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setCurrentRowForAction(null);
         setFormData({});
         setBulkInput('');
+        setOidcTestState(null);
     }
-  };
+  },[oidcConfigData]);
 
   const handleDeleteClick = (row: GroupWithRoleId) => {
     setModalActionType('delete');
@@ -265,11 +266,18 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }));
   };
 
-  const parseBulkInput = (input: string): GroupWithRoleId[] => {
+  const extractAndSortIds = (mappings: GroupWithRoleId[]): number[] => {
+    return mappings
+      .map(mapping => Number(mapping.id))
+      .filter(value => !isNaN(value))
+      .sort((a,b) => b - a)
+  }
+
+  const parseBulkInput = useCallback((input: string): GroupWithRoleId[] => {
     const lines = input.split('\n');
     const parsedMappings: GroupWithRoleId[] = [];
 
-    lines.forEach(line => {
+    lines.forEach((line,index) => {
       const trimmedLine = line.trim();
       if (!trimmedLine) return;
 
@@ -279,15 +287,15 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         console.warn(`Skipping malformed line: "${trimmedLine}". Name is required (third comma-separated value).`);
         return;
       }
-
-      const newId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+      
+      const newId = extractAndSortIds(mappings)[0] + (index+1);
       const lookerGroupId = parts[0] || '';
       const lookerGroupName = parts[1] || parts[2] || '';
       const name = parts[2];
       const roleIds = parts.slice(3).flatMap(r => r.split(',').map(s => s.trim()).filter(s => s));
 
       parsedMappings.push({
-        id: newId,
+        id: newId.toString(),
         looker_group_id: lookerGroupId,
         looker_group_name: lookerGroupName,
         name: name,
@@ -296,7 +304,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     });
 
     return parsedMappings;
-  };
+  },[mappings]);
 
   const handleDownloadConfig = () => {
     if (!oidcConfigData) {
